@@ -1,0 +1,54 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'com.anupam.flink'
+version = '1.0-SNAPSHOT'
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    flinkVersion = '1.17.2'
+    clickhouseVersion = '0.4.6'
+    jacksonVersion = '2.15.2'
+}
+
+dependencies {
+    // Flink core APIs (provided by cluster runtime)
+    compileOnly "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    compileOnly "org.apache.flink:flink-clients:${flinkVersion}"
+
+    // Flink connectors & external deps – MUST be shaded into jar
+    implementation "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+    implementation "org.apache.flink:flink-connector-jdbc:3.1.1-1.17"
+    implementation "com.clickhouse:clickhouse-jdbc:${clickhouseVersion}"
+    implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}"
+}
+
+application {
+    // 👇 Main class of your Flink job
+    mainClass = 'com.anupam.flink.FlightEventAggregator'
+}
+
+// Shadow JAR configuration
+shadowJar {
+    archiveFileName = "flight-flink-job.jar"
+    
+    manifest {
+        attributes(
+                'Main-Class': 'com.anupam.flink.FlightEventAggregator'
+        )
+    }
+}
+
+// Disable regular jar since we only need shadowJar for Flink
+jar {
+    enabled = false
+}
+
