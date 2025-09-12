@@ -102,3 +102,5 @@ curl http://localhost:8081/scheduler/status
 
 # Check health status
 docker-compose ps
+
+
